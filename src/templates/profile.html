@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="form-container">
+    <h1 class="form-title">User Profile</h1>
+    <div class="profile-info">
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Member Since:</strong> {{ user.created_at.strftime('%B %d, %Y') }}</p>
+        <p><strong>Last Login:</strong> {{ user.last_login.strftime('%B %d, %Y at %H:%M') if user.last_login else 'First login' }}</p>
+    </div>
+    
+    <div class="profile-stats">
+        <h2>Your Statistics</h2>
+        <p><strong>Tasks Assigned:</strong> {{ user.tasks|length }}</p>
+        <p><strong>Tasks Completed:</strong> {{ user.tasks|selectattr('completed', 'eq', true)|list|length }}</p>
+        <p><strong>Conversations:</strong> {{ user.chats|length }}</p>
+    </div>
+</div>
+{% endblock %}

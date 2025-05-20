@@ -1,0 +1,159 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Assign Task to {{ user.email }}</h1>
+    </div>
+    
+    <div class="admin-nav">
+        <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-item">Dashboard</a>
+        <a href="{{ url_for('admin.users') }}" class="admin-nav-item">Users</a>
+        <a href="{{ url_for('admin.system_prompt') }}" class="admin-nav-item">System Prompt</a>
+        <a href="{{ url_for('chat.index') }}" class="admin-nav-item">Back to Chat</a>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Assign New Task</h2>
+        <p class="task-info">This task will appear in the user's task list with the specified deadline.</p>
+        
+        <form method="POST" action="{{ url_for('admin.assign_task', user_id=user.id) }}">
+            <div class="form-group">
+                <label for="description">Task Description:</label>
+                <textarea id="description" name="description" rows="4" class="task-textarea" required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="days">Days to Complete:</label>
+                <input type="number" id="days" name="days" min="1" max="30" value="3" class="task-input">
+                <span class="input-help">Number of days the user has to complete this task</span>
+            </div>
+            <button type="submit" class="btn">Assign Task</button>
+            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.admin-header h1 {
+    color: var(--accent-color);
+    margin-bottom: 5px;
+}
+
+.admin-nav {
+    display: flex;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.admin-nav-item {
+    padding: 15px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    flex: 1;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.admin-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.admin-nav-item.active {
+    background-color: var(--primary-color);
+    color: var(--accent-color);
+}
+
+.admin-section {
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.admin-section h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.task-info {
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.task-textarea {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.task-input {
+    padding: 10px 15px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    width: 100px;
+}
+
+.task-textarea:focus, .task-input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.input-help {
+    display: block;
+    margin-top: 5px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.btn-secondary {
+    background-color: #444;
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    background-color: #555;
+}
+
+@media (max-width: 768px) {
+    .admin-nav {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

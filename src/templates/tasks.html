@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="task-container">
+    <div class="task-header">
+        <h1>Your Tasks</h1>
+        <p class="task-subtitle">Complete these tasks or face punishment from the Chennai Policewoman</p>
+    </div>
+    
+    <div class="task-section">
+        <h2>Pending Tasks</h2>
+        {% if pending_tasks %}
+            <div class="task-list">
+                {% for task in pending_tasks %}
+                    <div class="task-item {% if task.is_overdue %}overdue{% endif %}" data-task-id="{{ task.id }}">
+                        <div class="task-content">
+                            <div class="task-description">{{ task.description }}</div>
+                            <div class="task-deadline">
+                                Deadline: {{ task.deadline.strftime('%d %b %Y, %H:%M') }}
+                                {% if task.is_overdue %}
+                                    <span class="overdue-badge">OVERDUE</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <button class="btn complete-task">Complete</button>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-tasks">No pending tasks. The policewoman will assign you tasks during your chat.</p>
+        {% endif %}
+    </div>
+    
+    <div class="task-section">
+        <h2>Completed Tasks</h2>
+        {% if completed_tasks %}
+            <div class="task-list completed">
+                {% for task in completed_tasks %}
+                    <div class="task-item completed">
+                        <div class="task-content">
+                            <div class="task-description">{{ task.description }}</div>
+                            <div class="task-completion">
+                                Completed on: {{ task.completed_at.strftime('%d %b %Y, %H:%M') }}
+                            </div>
+                        </div>
+                        <div class="task-status">✓</div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p class="no-tasks">No completed tasks yet. Get to work!</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Add event listeners to complete buttons
+    const completeButtons = document.querySelectorAll('.complete-task');
+    
+    completeButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const taskItem = this.closest('.task-item');
+            const taskId = taskItem.dataset.taskId;
+            
+            // Send request to mark task as complete
+            fetch(`/task/complete/${taskId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.completed) {
+                    // Refresh the page to show updated task lists
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Failed to complete task. Please try again.');
+            });
+        });
+    });
+});
+</script>
+
+<style>
+.task-container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.task-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.task-header h1 {
+    color: var(--accent-color);
+    margin-bottom: 10px;
+}
+
+.task-subtitle {
+    color: var(--text-color);
+    font-style: italic;
+}
+
+.task-section {
+    margin-bottom: 40px;
+}
+
+.task-section h2 {
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.task-list {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.task-item.overdue {
+    border-left: 4px solid var(--error-color);
+}
+
+.task-item.completed {
+    opacity: 0.7;
+}
+
+.task-content {
+    flex: 1;
+}
+
+.task-description {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.task-deadline, .task-completion {
+    font-size: 14px;
+    color: #aaa;
+}
+
+.overdue-badge {
+    background-color: var(--error-color);
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    margin-left: 10px;
+}
+
+.task-status {
+    font-size: 24px;
+    color: var(--success-color);
+}
+
+.no-tasks {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.complete-task {
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+@media (max-width: 768px) {
+    .task-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .complete-task {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}

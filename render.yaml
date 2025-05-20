@@ -1,0 +1,3 @@
+# Render Deployment Configuration
+build_command: pip install -r requirements.txt
+start_command: gunicorn src.main:app

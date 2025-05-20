@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="admin-container">
+    <div class="admin-header">
+        <h1>Send Message to {{ user.email }}</h1>
+    </div>
+    
+    <div class="admin-nav">
+        <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-item">Dashboard</a>
+        <a href="{{ url_for('admin.users') }}" class="admin-nav-item">Users</a>
+        <a href="{{ url_for('admin.system_prompt') }}" class="admin-nav-item">System Prompt</a>
+        <a href="{{ url_for('chat.index') }}" class="admin-nav-item">Back to Chat</a>
+    </div>
+    
+    <div class="admin-section">
+        <h2>Send Message as Policewoman</h2>
+        <p class="message-info">This message will appear in the user's chat as if it came from the policewoman character.</p>
+        
+        <form method="POST" action="{{ url_for('admin.send_message', user_id=user.id) }}">
+            <div class="form-group">
+                <label for="message">Message:</label>
+                <textarea id="message" name="message" rows="6" class="message-textarea" required></textarea>
+            </div>
+            <button type="submit" class="btn">Send Message</button>
+            <a href="{{ url_for('admin.user_detail', user_id=user.id) }}" class="btn btn-secondary">Cancel</a>
+        </form>
+    </div>
+</div>
+
+<style>
+.admin-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.admin-header {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.admin-header h1 {
+    color: var(--accent-color);
+    margin-bottom: 5px;
+}
+
+.admin-nav {
+    display: flex;
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.admin-nav-item {
+    padding: 15px 20px;
+    color: var(--text-color);
+    text-decoration: none;
+    flex: 1;
+    text-align: center;
+    transition: background-color 0.3s;
+}
+
+.admin-nav-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    text-decoration: none;
+}
+
+.admin-nav-item.active {
+    background-color: var(--primary-color);
+    color: var(--accent-color);
+}
+
+.admin-section {
+    background-color: var(--secondary-color);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+}
+
+.admin-section h2 {
+    margin-top: 0;
+    color: var(--accent-color);
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.message-info {
+    margin-bottom: 20px;
+    font-style: italic;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+label {
+    display: block;
+    margin-bottom: 8px;
+    color: var(--text-color);
+    font-weight: 500;
+}
+
+.message-textarea {
+    width: 100%;
+    padding: 15px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 16px;
+    line-height: 1.5;
+    margin-bottom: 20px;
+}
+
+.message-textarea:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.btn-secondary {
+    background-color: #444;
+    margin-left: 10px;
+}
+
+.btn-secondary:hover {
+    background-color: #555;
+}
+
+@media (max-width: 768px) {
+    .admin-nav {
+        flex-direction: column;
+    }
+}
+</style>
+{% endblock %}

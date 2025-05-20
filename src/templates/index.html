@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="welcome-section">
+        <h1>Welcome to Chennai Policewoman Chat</h1>
+        <p>Sign up or login to start your disciplined journey with our tough Chennai policewoman.</p>
+        
+        <div class="action-buttons">
+            <a href="{{ url_for('auth.login') }}" class="btn">Login</a>
+            <a href="{{ url_for('auth.signup') }}" class="btn">Sign Up</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
