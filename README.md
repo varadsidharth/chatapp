@@ -14,7 +14,7 @@ This repository contains a web application that allows users to chat with a Chen
 ## Technical Stack
 
 - **Backend**: Flask
-- **Database**: MySQL
+- **Database**: PostgreSQL
 - **API**: Grok API for chat responses
 - **Frontend**: HTML, CSS, JavaScript
 
@@ -28,11 +28,11 @@ The following environment variables need to be configured:
 
 - `SECRET_KEY`: A secure random string for Flask sessions
 - `GROK_API_KEY`: Your Grok API key
-- `DB_USERNAME`: MySQL database username
-- `DB_PASSWORD`: MySQL database password
-- `DB_HOST`: MySQL database host
-- `DB_PORT`: MySQL database port (typically 3306)
-- `DB_NAME`: MySQL database name
+- `DB_USERNAME`: PostgreSQL database username
+- `DB_PASSWORD`: PostgreSQL database password
+- `DB_HOST`: PostgreSQL database host
+- `DB_PORT`: PostgreSQL database port (typically 5432)
+- `DB_NAME`: PostgreSQL database name
 
 ## Admin Access
 
