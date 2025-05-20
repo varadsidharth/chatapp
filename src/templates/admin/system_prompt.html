@@ -31,118 +31,13 @@
         <div class="guidelines">
             <p>For best results, include the following elements in your system prompt:</p>
             <ul>
-                <li>Character description (Chennai-based assistant with strict personality)</li>
+                <li>Character description (assistant with strict personality)</li>
                 <li>Tone instructions (commanding, strict, authoritative)</li>
                 <li>Task assignment behavior</li>
                 <li>Follow-up and consequence behavior</li>
-                <li>Language style (including Tamil phrases)</li>
                 <li>Response length guidance (shorter responses after initial interaction)</li>
             </ul>
         </div>
     </div>
 </div>
-
-<style>
-.admin-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.admin-header {
-    margin-bottom: 30px;
-    text-align: center;
-}
-
-.admin-header h1 {
-    color: var(--accent-color);
-    margin-bottom: 5px;
-}
-
-.admin-nav {
-    display: flex;
-    background-color: var(--secondary-color);
-    border-radius: 8px;
-    margin-bottom: 30px;
-    overflow: hidden;
-}
-
-.admin-nav-item {
-    padding: 15px 20px;
-    color: var(--text-color);
-    text-decoration: none;
-    flex: 1;
-    text-align: center;
-    transition: background-color 0.3s;
-}
-
-.admin-nav-item:hover {
-    background-color: rgba(255, 255, 255, 0.1);
-    text-decoration: none;
-}
-
-.admin-nav-item.active {
-    background-color: var(--primary-color);
-    color: var(--accent-color);
-}
-
-.admin-section {
-    background-color: var(--secondary-color);
-    border-radius: 8px;
-    padding: 20px;
-    margin-bottom: 30px;
-}
-
-.admin-section h2 {
-    margin-top: 0;
-    color: var(--accent-color);
-    border-bottom: 1px solid var(--border-color);
-    padding-bottom: 10px;
-    margin-bottom: 20px;
-}
-
-.prompt-info {
-    margin-bottom: 20px;
-    font-style: italic;
-}
-
-.prompt-textarea {
-    width: 100%;
-    padding: 15px;
-    background-color: var(--input-bg);
-    color: var(--text-color);
-    border: 1px solid var(--border-color);
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 14px;
-    line-height: 1.5;
-    margin-bottom: 20px;
-}
-
-.prompt-textarea:focus {
-    outline: none;
-    border-color: var(--accent-color);
-}
-
-.guidelines {
-    background-color: rgba(0, 0, 0, 0.2);
-    padding: 15px;
-    border-radius: 4px;
-}
-
-.guidelines ul {
-    margin-left: 20px;
-    padding-left: 0;
-}
-
-.guidelines li {
-    margin-bottom: 8px;
-}
-
-@media (max-width: 768px) {
-    .admin-nav {
-        flex-direction: column;
-    }
-}
-</style>
 {% endblock %}
