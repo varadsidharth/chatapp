@@ -15,8 +15,8 @@ logger = logging.getLogger(__name__)
 
 chat_bp = Blueprint('chat', __name__)
 
-# System prompt for the chat assistant character
-ASSISTANT_PERSONA = """You are a tough Chennai-based assistant who speaks in a commanding, strict tone and expects complete obedience. 
+# Base system prompt for the chat assistant character
+BASE_ASSISTANT_PERSONA = """You are a tough assistant who speaks in a commanding, strict tone and expects complete obedience. 
 You use occasional Tamil words like 'paaru' (look) and 'samjha' (understand) in your speech.
 You assign self-improvement tasks to users with specific deadlines (usually 24-48 hours).
 
@@ -27,6 +27,9 @@ Important: When assigning tasks, ALWAYS include a JSON block at the end of your 
 
 Keep your responses short (1-2 sentences) after the initial introduction.
 Always maintain your strict, commanding persona and never break character."""
+
+# Maximum number of messages to include in context
+MAX_CONTEXT_MESSAGES = 20
 
 # Authentication decorator
 def login_required(f):
@@ -47,6 +50,56 @@ def index():
     chats = Chat.query.filter_by(user_id=user_id).order_by(Chat.timestamp.asc()).all()
     
     return render_template('chat.html', user=user, chats=chats)
+
+def get_user_context_summary(user_id):
+    """Generate a summary of user context based on chat history and tasks"""
+    
+    # Get user information
+    user = User.query.get(user_id)
+    
+    # Get completed and pending tasks
+    completed_tasks = Task.query.filter_by(user_id=user_id, completed=True).all()
+    pending_tasks = Task.query.filter_by(user_id=user_id, completed=False).all()
+    
+    # Get first interaction date
+    first_chat = Chat.query.filter_by(user_id=user_id).order_by(Chat.timestamp.asc()).first()
+    first_interaction_date = first_chat.timestamp if first_chat else datetime.utcnow()
+    
+    # Calculate days since first interaction
+    days_since_first = (datetime.utcnow() - first_interaction_date).days
+    
+    # Build context summary
+    context = []
+    
+    # Add user history info
+    context.append(f"User has been interacting with you for {days_since_first} days.")
+    
+    # Add task completion info
+    if completed_tasks:
+        completion_rate = len(completed_tasks) / (len(completed_tasks) + len(pending_tasks)) * 100 if pending_tasks else 100
+        context.append(f"User has completed {len(completed_tasks)} tasks with a {completion_rate:.0f}% completion rate.")
+    
+    # Add pending task info
+    if pending_tasks:
+        context.append(f"User currently has {len(pending_tasks)} pending tasks.")
+        # List the pending tasks
+        task_list = [f"- {task.description} (due {task.deadline.strftime('%Y-%m-%d')})" for task in pending_tasks[:3]]
+        context.extend(task_list)
+    
+    # Return formatted context
+    return "\n".join(context)
+
+def create_dynamic_system_prompt(user_id):
+    """Create a dynamic system prompt that includes user context"""
+    
+    # Get user context summary
+    user_context = get_user_context_summary(user_id)
+    
+    # Combine base persona with user context
+    dynamic_prompt = f"{BASE_ASSISTANT_PERSONA}\n\nUSER CONTEXT:\n{user_context}\n\nUse this context to personalize your responses and refer to the user's history and pending tasks when appropriate."
+    
+    logger.info(f"Created dynamic system prompt for user {user_id} with context")
+    return dynamic_prompt
 
 @chat_bp.route('/send', methods=['POST'])
 @login_required
@@ -72,8 +125,9 @@ def send_message():
     db.session.commit()
     logger.info(f"Saved user message to database with ID: {user_chat.id}")
     
-    # Get all previous chats to provide context
-    previous_chats = Chat.query.filter_by(user_id=user_id).order_by(Chat.timestamp.asc()).all()
+    # Get recent chats to provide context, limiting to MAX_CONTEXT_MESSAGES
+    previous_chats = Chat.query.filter_by(user_id=user_id).order_by(Chat.timestamp.desc()).limit(MAX_CONTEXT_MESSAGES).all()
+    previous_chats.reverse()  # Reverse to get chronological order
     
     # Build conversation history for context
     conversation_history = []
@@ -83,8 +137,8 @@ def send_message():
         if chat.response and chat.response != "Processing your request...":
             conversation_history.append({"role": "assistant", "content": chat.response})
     
-    # Add current message
-    conversation_history.append({"role": "user", "content": message})
+    # Create dynamic system prompt with user context
+    dynamic_system_prompt = create_dynamic_system_prompt(user_id)
     
     # Get API key from environment variable
     api_key = os.environ.get("GROK_API_KEY", "xai-6D4IUdKrs8A98klmtzTqrR1P49BvWck5AbFcnrA2DGpJtokYEqPrpG6gHokGIDc5cg1lZP0U8W9nY5Yp")
@@ -99,7 +153,7 @@ def send_message():
     
     payload = {
         "messages": [
-            {"role": "system", "content": ASSISTANT_PERSONA}
+            {"role": "system", "content": dynamic_system_prompt}
         ] + conversation_history,
         "model": "grok-3-latest",
         "stream": False,
