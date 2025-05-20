@@ -6,6 +6,12 @@ import json
 import re
 from datetime import datetime, timedelta
 import os
+import logging
+import traceback
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -48,19 +54,23 @@ def send_message():
     user_id = session.get('user_id')
     message = request.form.get('message')
     
+    logger.info(f"User {user_id} sent message: {message[:50]}...")
+    
     if not message:
+        logger.warning("Empty message received")
         return jsonify({'error': 'Message cannot be empty'}), 400
     
     # Save user message to database
     user_chat = Chat(
         user_id=user_id,
         message=message,
-        response=None,
+        response="Processing your request...",  # Default response to avoid NULL constraint violation
         timestamp=datetime.utcnow(),
         is_system_message=False
     )
     db.session.add(user_chat)
     db.session.commit()
+    logger.info(f"Saved user message to database with ID: {user_chat.id}")
     
     # Get all previous chats to provide context
     previous_chats = Chat.query.filter_by(user_id=user_id).order_by(Chat.timestamp.asc()).all()
@@ -70,7 +80,7 @@ def send_message():
     for chat in previous_chats:
         if chat.message:
             conversation_history.append({"role": "user", "content": chat.message})
-        if chat.response:
+        if chat.response and chat.response != "Processing your request...":
             conversation_history.append({"role": "assistant", "content": chat.response})
     
     # Add current message
@@ -78,6 +88,10 @@ def send_message():
     
     # Get API key from environment variable
     api_key = os.environ.get("GROK_API_KEY", "xai-6D4IUdKrs8A98klmtzTqrR1P49BvWck5AbFcnrA2DGpJtokYEqPrpG6gHokGIDc5cg1lZP0U8W9nY5Yp")
+    
+    if not api_key or api_key == "xai-6D4IUdKrs8A98klmtzTqrR1P49BvWck5AbFcnrA2DGpJtokYEqPrpG6gHokGIDc5cg1lZP0U8W9nY5Yp":
+        logger.warning("Using default API key or no API key found in environment variables")
+    
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
@@ -94,23 +108,27 @@ def send_message():
     
     try:
         # Log the request payload (excluding API key for security)
-        print(f"Sending request to Grok API with {len(conversation_history)} messages")
+        logger.info(f"Sending request to Grok API with {len(conversation_history)} messages")
+        logger.info(f"API Endpoint: https://api.x.ai/v1/chat/completions")
+        logger.info(f"Model: grok-3-latest")
         
         # Make the API call
         response = requests.post(
             "https://api.x.ai/v1/chat/completions",
             headers=headers,
-            json=payload
+            json=payload,
+            timeout=30  # Add timeout to prevent hanging requests
         )
         
         # Log the response status and content
-        print(f"Grok API response status: {response.status_code}")
+        logger.info(f"Grok API response status: {response.status_code}")
         
         if response.status_code == 200:
             response_data = response.json()
-            assistant_response = response_data['choices'][0]['message']['content']
+            logger.info(f"Grok API response received successfully")
             
-            print(f"Grok API response content: {assistant_response[:100]}...")
+            assistant_response = response_data['choices'][0]['message']['content']
+            logger.info(f"Grok API response content: {assistant_response[:100]}...")
             
             # Extract tasks from JSON block if present
             json_pattern = r'```json\s*(.*?)\s*```'
@@ -120,7 +138,7 @@ def send_message():
                 try:
                     # Extract the JSON data
                     json_data = json.loads(json_matches[0])
-                    print(f"Extracted task JSON: {json_data}")
+                    logger.info(f"Extracted task JSON: {json_data}")
                     
                     # Remove the JSON block from the response
                     clean_response = re.sub(json_pattern, '', assistant_response, flags=re.DOTALL).strip()
@@ -141,12 +159,12 @@ def send_message():
                                     completed=False
                                 )
                                 db.session.add(new_task)
-                                print(f"Added task: {task_data['description']} with deadline in {days} days")
+                                logger.info(f"Added task: {task_data['description']} with deadline in {days} days")
                     
                     # Save the clean response
                     assistant_response = clean_response
                 except json.JSONDecodeError as e:
-                    print(f"Error parsing JSON from response: {e}")
+                    logger.error(f"Error parsing JSON from response: {e}")
                     # Continue with the original response if JSON parsing fails
             else:
                 # If no JSON block found, try to extract task information from text
@@ -164,27 +182,61 @@ def send_message():
                                 completed=False
                             )
                             db.session.add(new_task)
-                            print(f"Extracted task from text: {task_desc.strip()}")
+                            logger.info(f"Extracted task from text: {task_desc.strip()}")
             
             # Save assistant response to database
             user_chat.response = assistant_response
             db.session.commit()
+            logger.info(f"Updated chat record with assistant response")
             
             return jsonify({
                 'response': assistant_response,
                 'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
             })
         else:
-            print(f"Error from Grok API: {response.text}")
-            return jsonify({'error': f'API Error: {response.status_code}'}), 500
+            error_message = f"Error from Grok API: Status {response.status_code}"
+            try:
+                error_detail = response.json()
+                logger.error(f"{error_message} - Details: {error_detail}")
+            except:
+                logger.error(f"{error_message} - Response text: {response.text}")
             
-    except Exception as e:
-        import traceback
-        print(f"Exception in send_message: {str(e)}")
-        print(traceback.format_exc())
+            # Update the chat with error information
+            error_response = f"I apologize, but I'm having trouble connecting to my knowledge base. Please try again later. (Error: {response.status_code})"
+            user_chat.response = error_response
+            db.session.commit()
+            
+            return jsonify({
+                'response': error_response,
+                'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+            })
+            
+    except requests.exceptions.RequestException as e:
+        error_detail = str(e)
+        logger.error(f"Request exception in send_message: {error_detail}")
+        logger.error(traceback.format_exc())
         
-        # Save the error as the response for debugging
-        user_chat.response = f"Error: {str(e)}"
+        # Save a user-friendly error message as the response
+        error_response = "I apologize, but I'm having trouble connecting to my knowledge base. Please try again later."
+        user_chat.response = error_response
         db.session.commit()
         
-        return jsonify({'error': str(e)}), 500
+        return jsonify({
+            'response': error_response,
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        })
+        
+    except Exception as e:
+        error_detail = str(e)
+        logger.error(f"Unexpected exception in send_message: {error_detail}")
+        logger.error(traceback.format_exc())
+        
+        # Save a user-friendly error message as the response
+        error_response = "I apologize, but I encountered an unexpected error. Please try again later."
+        user_chat.response = error_response
+        db.session.commit()
+        
+        return jsonify({
+            'response': error_response,
+            'timestamp': datetime.utcnow().strftime('%Y-%m-%d %H:%M')
+        })
