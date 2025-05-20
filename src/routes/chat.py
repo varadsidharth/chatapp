@@ -49,7 +49,10 @@ def index():
     # Get all chats for the user, ordered by timestamp ascending (oldest first)
     chats = Chat.query.filter_by(user_id=user_id).order_by(Chat.timestamp.asc()).all()
     
-    return render_template('chat.html', user=user, chats=chats)
+    # Add current datetime for template to use for overdue task detection
+    now = datetime.utcnow()
+    
+    return render_template('chat.html', user=user, chats=chats, now=now)
 
 def get_user_context_summary(user_id):
     """Generate a summary of user context based on chat history and tasks"""
