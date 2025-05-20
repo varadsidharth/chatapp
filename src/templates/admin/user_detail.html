@@ -7,7 +7,7 @@
     </div>
     
     <div class="admin-nav">
-        <a href="{{ url_for('admin.dashboard') }}" class="admin-nav-item">Dashboard</a>
+        <a href="{{ url_for('admin.index') }}" class="admin-nav-item">Dashboard</a>
         <a href="{{ url_for('admin.users') }}" class="admin-nav-item">Users</a>
         <a href="{{ url_for('admin.system_prompt') }}" class="admin-nav-item">System Prompt</a>
         <a href="{{ url_for('chat.index') }}" class="admin-nav-item">Back to Chat</a>
@@ -52,8 +52,8 @@
                             </div>
                         {% endif %}
                         
-                        <div class="police-message">
-                            <div class="message-label">{% if chat.is_system_message %}Admin{% else %}Policewoman{% endif %}:</div>
+                        <div class="assistant-message">
+                            <div class="message-label">{% if chat.is_system_message %}Admin{% else %}Assistant{% endif %}:</div>
                             <div class="message-content">{{ chat.response }}</div>
                         </div>
                     </div>
@@ -203,7 +203,7 @@
     margin: 0;
 }
 
-.user-message, .police-message {
+.user-message, .assistant-message {
     margin-bottom: 10px;
 }
 
