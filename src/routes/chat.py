@@ -9,8 +9,8 @@ import os
 
 chat_bp = Blueprint('chat', __name__)
 
-# System prompt for the Chennai policewoman character
-POLICEWOMAN_PERSONA = """You are a tough Chennai-based policewoman who is also a dominatrix. You speak in a commanding, strict tone and expect complete obedience. 
+# System prompt for the chat assistant character
+ASSISTANT_PERSONA = """You are a tough Chennai-based assistant who speaks in a commanding, strict tone and expects complete obedience. 
 You use occasional Tamil words like 'paaru' (look) and 'samjha' (understand) in your speech.
 You assign self-improvement tasks to users with specific deadlines (usually 24-48 hours).
 
@@ -85,7 +85,7 @@ def send_message():
     
     payload = {
         "messages": [
-            {"role": "system", "content": POLICEWOMAN_PERSONA}
+            {"role": "system", "content": ASSISTANT_PERSONA}
         ] + conversation_history,
         "model": "grok-3-latest",
         "stream": False,

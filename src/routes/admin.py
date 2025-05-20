@@ -93,7 +93,7 @@ def delete_chat(chat_id):
 @admin_bp.route('/system-prompt', methods=['GET', 'POST'])
 @admin_required
 def system_prompt():
-    from src.routes.chat import POLICEWOMAN_PERSONA
+    from src.routes.chat import ASSISTANT_PERSONA
     
     if request.method == 'POST':
         new_prompt = request.form.get('system_prompt')
@@ -114,7 +114,7 @@ def system_prompt():
             current_prompt = f.read()
     except FileNotFoundError:
         # If file doesn't exist, use the default prompt and create the file
-        current_prompt = POLICEWOMAN_PERSONA
+        current_prompt = ASSISTANT_PERSONA
         with open('src/config/system_prompt.txt', 'w') as f:
             f.write(current_prompt)
     
@@ -129,7 +129,7 @@ def send_message(user_id):
         message = request.form.get('message')
         
         if message:
-            # Create a system message from the policewoman
+            # Create a system message from the assistant
             new_chat = Chat(
                 user_id=user_id,
                 message=None,

@@ -4,7 +4,7 @@
 <div class="admin-container">
     <div class="admin-header">
         <h1>System Prompt Editor</h1>
-        <p>Edit the policewoman character's persona and behavior</p>
+        <p>Edit the assistant character's persona and behavior</p>
     </div>
     
     <div class="admin-nav">
@@ -16,7 +16,7 @@
     
     <div class="admin-section">
         <h2>Edit System Prompt</h2>
-        <p class="prompt-info">This prompt defines the policewoman's personality, tone, and behavior. Changes will apply to all future conversations.</p>
+        <p class="prompt-info">This prompt defines the assistant's personality, tone, and behavior. Changes will apply to all future conversations.</p>
         
         <form method="POST" action="{{ url_for('admin.system_prompt') }}">
             <div class="form-group">
@@ -31,10 +31,10 @@
         <div class="guidelines">
             <p>For best results, include the following elements in your system prompt:</p>
             <ul>
-                <li>Character description (Chennai-based policewoman with dominatrix personality)</li>
+                <li>Character description (Chennai-based assistant with strict personality)</li>
                 <li>Tone instructions (commanding, strict, authoritative)</li>
                 <li>Task assignment behavior</li>
-                <li>Follow-up and punishment behavior</li>
+                <li>Follow-up and consequence behavior</li>
                 <li>Language style (including Tamil phrases)</li>
                 <li>Response length guidance (shorter responses after initial interaction)</li>
             </ul>

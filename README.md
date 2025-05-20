@@ -1,15 +1,15 @@
-# Chennai Policewoman Chat App - Deployment Ready
+# Chennai Chat Assistant - Deployment Ready
 
-This repository contains a web application that allows users to chat with a Chennai-based policewoman character powered by the Grok API. The application includes user authentication, chat functionality, task management, and an admin dashboard.
+This repository contains a web application that allows users to chat with a Chennai-based assistant character powered by the Grok API. The application includes user authentication, chat functionality, task management, and an admin dashboard.
 
 ## Features
 
 - User authentication (signup/login)
-- Chat with a tough Chennai policewoman character
+- Chat with a tough Chennai-based assistant character
 - Task assignment and tracking
 - Admin dashboard for user management
 - System prompt customization
-- Dark femdom-themed UI
+- Dark-themed UI
 
 ## Technical Stack
 

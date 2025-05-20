@@ -1,7 +1,7 @@
-# Chennai Policewoman Chat App - Deployment Guide
+# Chennai Chat Assistant - Deployment Guide
 
 ## Overview
-This document provides instructions for deploying the Chennai Policewoman Chat App on Render.
+This document provides instructions for deploying the Chennai Chat Assistant on Render.
 
 ## Application Structure
 - Flask web application with MySQL database
@@ -22,7 +22,7 @@ This document provides instructions for deploying the Chennai Policewoman Chat A
 - Click "New" and select "Web Service"
 - Connect your GitHub/GitLab repository or upload the code directly
 - Configure the service:
-  - Name: chennai-policewoman-chat
+  - Name: chennai-chat-assistant
   - Runtime: Python 3
   - Build Command: `pip install -r requirements.txt`
   - Start Command: `gunicorn src.main:app`
